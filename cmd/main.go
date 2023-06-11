@@ -25,6 +25,9 @@ func main() {
 	http.Handle("/openCell", http.HandlerFunc(handlers.OpenCell))
 	http.Handle("/disabledEnabledCell", http.HandlerFunc(handlers.DisabledEnabledCell))
 
+	fs := http.FileServer(http.Dir("./static/"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
 	g, gCtx := errgroup.WithContext(ctx)
 	g.Go(func() error {
 		fmt.Print("Server is listening...")

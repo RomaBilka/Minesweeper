@@ -1,7 +1,8 @@
 name: Test
-
-on: [workflow_call]
-
+on:
+  push:
+    branches:
+      - '**'
 jobs:
   tests:
     runs-on: ubuntu-latest
