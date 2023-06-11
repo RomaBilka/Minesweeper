@@ -1,5 +1,5 @@
-let newGameForm = document.getElementById("newGameForm");
-let newGame = document.getElementById("newGame");
+const newGameForm = document.getElementById("newGameForm");
+const newGame = document.getElementById("newGame");
 
 newGameForm.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -34,7 +34,7 @@ function createTable(cells) {
             td.dataset.m = m
             td.setAttribute('id', n.toString() + m.toString());
             tr.addEventListener("click", openCell);
-            tr.addEventListener("contextmenu", DisabledEnabledCell);
+            tr.addEventListener("contextmenu", disabledEnabledCell);
             tr.appendChild(td)
         }
         table.appendChild(tr);
@@ -54,7 +54,7 @@ function openCell(e) {
     cellAction(data, path)
 }
 
-function DisabledEnabledCell(e) {
+function disabledEnabledCell(e) {
     e.preventDefault()
     const path = "/disabledEnabledCell"
     const data = {
@@ -75,6 +75,7 @@ function cellAction(data, path){
     }).then((response) => response.json())
         .then((json) => updateGame(json));
 }
+
 function updateGame(data){
     updateCells(data.cells)
     switch (parseInt(data.gameStatus)){
