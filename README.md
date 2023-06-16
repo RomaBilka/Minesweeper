@@ -1,7 +1,7 @@
 # Minesweeper
 ### Classic minesweeper game
 ## Run
-```go run .\cmd\main.go```
+`go run .\cmd\main.go`
 
-##Play
+## Play
 ```http://localhost:3000/```
