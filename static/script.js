@@ -11,7 +11,7 @@ newGameForm.addEventListener("submit", (e) => {
         body: JSON.stringify({
             n: parseInt(document.getElementById('n').value),
             m: parseInt(document.getElementById('m').value),
-            numberBlackHoles: parseInt(document.getElementById('numberBlackHoles').value),
+            numberMines: parseInt(document.getElementById('numberMines').value),
         }),
     }).then((response) => response.json())
         .then((json) => createTable(json.cells));
@@ -101,14 +101,14 @@ function updateCells(cells){
             td.className = ''
 
             if(cells[n][m].isOpen){
-                if(cells[n][m].isBlackHole){
-                    td.classList.add("blackHall");
+                if(cells[n][m].isMine){
+                    td.classList.add("mine");
                     continue;
                 }
 
-                if(cells[n][m].numberNeighborhoodBlackHole>0){
-                    td.textContent = cells[n][m].numberNeighborhoodBlackHole;
-                    switch (parseInt(cells[n][m].numberNeighborhoodBlackHole)){
+                if(cells[n][m].numberNeighborhoodMine>0){
+                    td.textContent = cells[n][m].numberNeighborhoodMine;
+                    switch (parseInt(cells[n][m].numberNeighborhoodMine)){
                         case 1:
                             td.classList.add("number1");
                             break;

@@ -8,31 +8,31 @@ import (
 
 func TestNewGame(t *testing.T) {
 	testCases := []struct {
-		name             string
-		n                int
-		m                int
-		numberBlackHoles int
-		error            string
+		name        string
+		n           int
+		m           int
+		numberMines int
+		error       string
 	}{
 		{
-			name:             "numberBlackHoles > n*n",
-			n:                1,
-			m:                1,
-			numberBlackHoles: 2,
-			error:            "number of black holes can not be more as n*m",
+			name:        "numberMines > n*n",
+			n:           1,
+			m:           1,
+			numberMines: 2,
+			error:       "number of black holes can not be more as n*m",
 		},
 		{
-			name:             "numberBlackHoles is zero",
-			n:                1,
-			m:                1,
-			numberBlackHoles: 0,
-			error:            "n, m or the number of black holes can not be zero",
+			name:        "numberMines is zero",
+			n:           1,
+			m:           1,
+			numberMines: 0,
+			error:       "n, m or the number of black holes can not be zero",
 		},
 	}
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			_, err := NewGame(testCase.n, testCase.m, testCase.numberBlackHoles)
+			_, err := NewGame(testCase.n, testCase.m, testCase.numberMines)
 			assert.Errorf(t, err, testCase.error)
 		})
 	}
@@ -70,12 +70,12 @@ func TestCheckIsGameIsWon(t *testing.T) {
 			name: "Game continues",
 			g: &Game{
 				Cells: [][]Cell{
-					{{IsOpen: true}, {IsBlackHole: true}},
+					{{IsOpen: true}, {IsMine: true}},
 					{{IsOpen: true}, {}},
 				},
-				N:                 2,
-				M:                 2,
-				NumbersBlackHoles: 1,
+				N:            2,
+				M:            2,
+				NumbersMines: 1,
 			},
 			gameStatus: 0,
 		},
@@ -83,12 +83,12 @@ func TestCheckIsGameIsWon(t *testing.T) {
 			name: "Game won",
 			g: &Game{
 				Cells: [][]Cell{
-					{{IsOpen: true}, {IsBlackHole: true}},
+					{{IsOpen: true}, {IsMine: true}},
 					{{IsOpen: true}, {IsOpen: true}},
 				},
-				N:                 2,
-				M:                 2,
-				NumbersBlackHoles: 1,
+				N:            2,
+				M:            2,
+				NumbersMines: 1,
 			},
 			gameStatus: 1,
 		},
@@ -96,12 +96,12 @@ func TestCheckIsGameIsWon(t *testing.T) {
 			name: "Game with disabled cell",
 			g: &Game{
 				Cells: [][]Cell{
-					{{IsOpen: true}, {IsBlackHole: true, IsDisabled: true}},
+					{{IsOpen: true}, {IsMine: true, IsDisabled: true}},
 					{{IsOpen: true}, {IsOpen: true}},
 				},
-				N:                 2,
-				M:                 2,
-				NumbersBlackHoles: 0,
+				N:            2,
+				M:            2,
+				NumbersMines: 0,
 			},
 			gameStatus: 0,
 		},
@@ -115,15 +115,15 @@ func TestCheckIsGameIsWon(t *testing.T) {
 	}
 }
 
-func TestOpenAllBlackHole(t *testing.T) {
+func TestOpenAllMine(t *testing.T) {
 	g := &Game{
 		Cells: [][]Cell{
-			{{}, {IsBlackHole: true}},
-			{{IsBlackHole: true}, {}},
+			{{}, {IsMine: true}},
+			{{IsMine: true}, {}},
 		},
-		N:                 2,
-		M:                 2,
-		NumbersBlackHoles: 1,
+		N:            2,
+		M:            2,
+		NumbersMines: 1,
 	}
 
 	testCases := []struct {
@@ -137,7 +137,7 @@ func TestOpenAllBlackHole(t *testing.T) {
 		{name: "1 1 close", n: 1, m: 1, isOpen: false},
 	}
 
-	g.openAllBlackHole()
+	g.openAllMine()
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			assert.Equal(t, testCase.isOpen, g.Cells[testCase.n][testCase.m].IsOpen)
@@ -178,12 +178,12 @@ func TestOpenAllZeroNeighborhood(t *testing.T) {
 	g := &Game{
 		Cells: [][]Cell{
 			{{}, {}, {}},
-			{{}, {NumberNeighborhoodBlackHole: 1}, {NumberNeighborhoodBlackHole: 1}},
-			{{}, {NumberNeighborhoodBlackHole: 1}, {IsBlackHole: true}},
+			{{}, {NumberNeighborhoodMine: 1}, {NumberNeighborhoodMine: 1}},
+			{{}, {NumberNeighborhoodMine: 1}, {IsMine: true}},
 		},
-		N:                 3,
-		M:                 3,
-		NumbersBlackHoles: 1,
+		N:            3,
+		M:            3,
+		NumbersMines: 1,
 	}
 	testCases := []struct {
 		name   string
@@ -210,14 +210,14 @@ func TestOpenAllZeroNeighborhood(t *testing.T) {
 
 func TestOpenCell(t *testing.T) {
 	testCases := []struct {
-		name                        string
-		n, m                        int
-		isOpen                      bool
-		numberNeighborhoodBlackHole int
-		gameStatus                  int
+		name                   string
+		n, m                   int
+		isOpen                 bool
+		numberNeighborhoodMine int
+		gameStatus             int
 	}{
 		{name: "0 0 Open", n: 0, m: 0, isOpen: true, gameStatus: 1},
-		{name: "1 1 Open", n: 1, m: 1, isOpen: true, numberNeighborhoodBlackHole: 1},
+		{name: "1 1 Open", n: 1, m: 1, isOpen: true, numberNeighborhoodMine: 1},
 		{name: "2 2 Open", n: 2, m: 2, isOpen: true, gameStatus: 2},
 	}
 
@@ -226,12 +226,12 @@ func TestOpenCell(t *testing.T) {
 			g := &Game{
 				Cells: [][]Cell{
 					{{}, {}, {}},
-					{{}, {NumberNeighborhoodBlackHole: 1}, {NumberNeighborhoodBlackHole: 1}},
-					{{}, {NumberNeighborhoodBlackHole: 1}, {IsBlackHole: true}},
+					{{}, {NumberNeighborhoodMine: 1}, {NumberNeighborhoodMine: 1}},
+					{{}, {NumberNeighborhoodMine: 1}, {IsMine: true}},
 				},
-				N:                 3,
-				M:                 3,
-				NumbersBlackHoles: 1,
+				N:            3,
+				M:            3,
+				NumbersMines: 1,
 			}
 			err := g.OpenCell(testCase.n, testCase.m)
 			if err != nil {
@@ -239,7 +239,7 @@ func TestOpenCell(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			assert.Equal(t, testCase.isOpen, g.Cells[testCase.n][testCase.m].IsOpen)
-			assert.Equal(t, testCase.numberNeighborhoodBlackHole, g.Cells[testCase.n][testCase.m].NumberNeighborhoodBlackHole)
+			assert.Equal(t, testCase.numberNeighborhoodMine, g.Cells[testCase.n][testCase.m].NumberNeighborhoodMine)
 			assert.Equal(t, testCase.gameStatus, g.GameStatus)
 		})
 	}

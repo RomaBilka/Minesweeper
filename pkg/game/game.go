@@ -14,38 +14,38 @@ const (
 // Game
 // GameStatus continues=0, won=1, lost=2
 type Game struct {
-	N                 int      `json:"n"`
-	M                 int      `json:"m"`
-	NumbersBlackHoles int      `json:"numbersBlackHoles"`
-	Cells             [][]Cell `json:"cells"`
-	GameStatus        int      `json:"gameStatus"`
+	N            int      `json:"n"`
+	M            int      `json:"m"`
+	NumbersMines int      `json:"numbersMines"`
+	Cells        [][]Cell `json:"cells"`
+	GameStatus   int      `json:"gameStatus"`
 }
 
 // Cell
-// numberNeighborhoodBlackHole - the number of black holes in the neighborhood
+// numberNeighborhoodMine - the number of black holes in the neighborhood
 type Cell struct {
-	NumberNeighborhoodBlackHole int  `json:"numberNeighborhoodBlackHole"`
-	IsOpen                      bool `json:"isOpen"`
-	IsDisabled                  bool `json:"isDisabled"`
-	IsBlackHole                 bool `json:"isBlackHole"`
+	NumberNeighborhoodMine int  `json:"numberNeighborhoodMine"`
+	IsOpen                 bool `json:"isOpen"`
+	IsDisabled             bool `json:"isDisabled"`
+	IsMine                 bool `json:"isMine"`
 }
 
-func NewGame(n, m, numberBlackHoles int) (*Game, error) {
-	if n*m < numberBlackHoles {
+func NewGame(n, m, numberMines int) (*Game, error) {
+	if n*m < numberMines {
 		return nil, errors.New("number of black holes can not be more as n*m")
 	}
-	if n == 0 || m == 0 || numberBlackHoles == 0 {
+	if n == 0 || m == 0 || numberMines == 0 {
 		return nil, errors.New("n, m or the number of black holes can not be zero")
 	}
 
 	g := Game{
-		N:                 n,
-		M:                 m,
-		NumbersBlackHoles: numberBlackHoles,
+		N:            n,
+		M:            m,
+		NumbersMines: numberMines,
 	}
 	g.initCells()
-	g.setBlackHoles()
-	g.countNeighborhoodBlackHole()
+	g.setMines()
+	g.countNeighborhoodMine()
 
 	return &g, nil
 }
@@ -63,17 +63,17 @@ func (g *Game) OpenCell(n, m int) error {
 		return nil
 	}
 
-	if g.Cells[n][m].IsBlackHole {
+	if g.Cells[n][m].IsMine {
 		g.GameStatus = GameStatusLost
-		g.openAllBlackHole()
+		g.openAllMine()
 		return nil
 	}
 
-	if g.Cells[n][m].NumberNeighborhoodBlackHole > 0 {
+	if g.Cells[n][m].NumberNeighborhoodMine > 0 {
 		g.Cells[n][m].IsOpen = true
 	}
 
-	if g.Cells[n][m].NumberNeighborhoodBlackHole == 0 {
+	if g.Cells[n][m].NumberNeighborhoodMine == 0 {
 		g.openAllZeroNeighborhood(n, m)
 	}
 
@@ -121,37 +121,37 @@ func (g *Game) initCells() {
 	}
 }
 
-func (g *Game) setBlackHoles() {
+func (g *Game) setMines() {
 	blackHole := 0
 
-	for blackHole < g.NumbersBlackHoles {
+	for blackHole < g.NumbersMines {
 		n := rand.Intn(g.N)
 		m := rand.Intn(g.M)
-		if !g.Cells[n][m].IsBlackHole {
-			g.Cells[n][m].IsBlackHole = true
+		if !g.Cells[n][m].IsMine {
+			g.Cells[n][m].IsMine = true
 			blackHole++
 		}
 	}
 }
 
-func (g *Game) countNeighborhoodBlackHole() {
+func (g *Game) countNeighborhoodMine() {
 	for n := 0; n < g.N; n++ {
 		for m := 0; m < g.M; m++ {
-			if g.Cells[n][m].IsBlackHole {
+			if g.Cells[n][m].IsMine {
 				continue
 			}
-			g.Cells[n][m].NumberNeighborhoodBlackHole = g.countNeighborhoodBlackHoleForOneCell(n, m)
+			g.Cells[n][m].NumberNeighborhoodMine = g.countNeighborhoodMineForOneCell(n, m)
 		}
 	}
 }
 
-func (g *Game) countNeighborhoodBlackHoleForOneCell(n, m int) int {
+func (g *Game) countNeighborhoodMineForOneCell(n, m int) int {
 	total := 0
 
 	for i := n - 1; i <= n+1; i++ {
 		for j := m - 1; j <= m+1; j++ {
 			if i >= 0 && j >= 0 && i < g.N && j < g.M {
-				if g.Cells[i][j].IsBlackHole {
+				if g.Cells[i][j].IsMine {
 					total++
 				}
 			}
@@ -161,10 +161,10 @@ func (g *Game) countNeighborhoodBlackHoleForOneCell(n, m int) int {
 	return total
 }
 
-func (g *Game) openAllBlackHole() {
+func (g *Game) openAllMine() {
 	for n := 0; n < g.N; n++ {
 		for m := 0; m < g.M; m++ {
-			if g.Cells[n][m].IsBlackHole {
+			if g.Cells[n][m].IsMine {
 				g.Cells[n][m].IsOpen = true
 				g.Cells[n][m].IsDisabled = false
 			}
@@ -173,13 +173,13 @@ func (g *Game) openAllBlackHole() {
 }
 
 func (g *Game) openAllZeroNeighborhood(n, m int) {
-	if !g.Cells[n][m].IsDisabled && !g.Cells[n][m].IsOpen && !g.Cells[n][m].IsBlackHole {
+	if !g.Cells[n][m].IsDisabled && !g.Cells[n][m].IsOpen && !g.Cells[n][m].IsMine {
 		g.Cells[n][m].IsOpen = true
 	} else {
 		return
 	}
 
-	if g.Cells[n][m].NumberNeighborhoodBlackHole > 0 {
+	if g.Cells[n][m].NumberNeighborhoodMine > 0 {
 		return
 	}
 
@@ -198,11 +198,13 @@ func (g *Game) checkIsGameIsWon() {
 
 	for n := 0; n < g.N; n++ {
 		for m := 0; m < g.M; m++ {
-			if !g.Cells[n][m].IsOpen != g.Cells[n][m].IsBlackHole {
+			if !g.Cells[n][m].IsOpen != g.Cells[n][m].IsMine {
 				totalClosed++
+				return
 			}
 			if g.Cells[n][m].IsDisabled {
 				totalDisabled++
+				return
 			}
 		}
 	}

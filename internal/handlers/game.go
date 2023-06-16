@@ -16,7 +16,7 @@ type cell struct {
 
 type newGameData struct {
 	cell
-	NumberBlackHoles int `json:"numberBlackHoles"`
+	NumberMines int `json:"numberMines"`
 }
 
 func StartGame(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +29,7 @@ func StartGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	g, err = game.NewGame(gameData.N, gameData.M, gameData.NumberBlackHoles)
+	g, err = game.NewGame(gameData.N, gameData.M, gameData.NumberMines)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -100,8 +100,8 @@ func clearDataForResponse(g game.Game) game.Game {
 	for n := 0; n < g.N; n++ {
 		for m := 0; m < g.M; m++ {
 			if !g.Cells[n][m].IsOpen {
-				g.Cells[n][m].IsBlackHole = false
-				g.Cells[n][m].NumberNeighborhoodBlackHole = 0
+				g.Cells[n][m].IsMine = false
+				g.Cells[n][m].NumberNeighborhoodMine = 0
 			}
 		}
 	}
